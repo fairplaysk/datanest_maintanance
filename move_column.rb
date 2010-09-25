@@ -153,12 +153,30 @@ class App
       test_column(model, master_column) do
         target_column = get_target_column
         test_column(model, target_column) do
+          model.all.each_with_index do |row, index|
+            if row != nil
+              update_decision(model, master_column, target_column)
+            elsif
+              model.send("#{target_column}=", model.send(master_column))
+            end
+            puts "Spracovanych #{index} riadkov." if index % 20 == 0
+          end
+          puts "Spracovanie dat ukoncene. Celkovo bolo spracovanych #{model.count} riadkov."
         end
       end
       
       #process_standard_input
     end
     
+    def update_decision(model, master, target)
+      choose do |menu|
+        menu.prompt = "Hodnota v stlpci `target` je nenulova. Co si zelate spravit?"
+
+        menu.choice('prepisat') { model.send("#{target_column}=", model.send(master_column)) }
+        menu.choices('preskocit')
+        menu.choices('ukoncit program'){ exit }
+      end
+    end
     
     def get_target_column
       ask('Zadajte prosim `target` stlpec: ') { |q| q.validate = /\w+/}
