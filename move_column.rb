@@ -39,13 +39,12 @@
 
 # zip = ask("Zip?  ") { |q| q.validate = /\A\d{5}(?:-?\d{4})?\Z/ }
 
-require ‘rubygems‘
-require ‘bundler/setup‘
+require 'rubygems'
+require 'bundler/setup'
 Bundler.require
 
 require 'ostruct'
 require 'date'
-
 
 class App
   VERSION = '0.0.1'
@@ -117,7 +116,7 @@ class App
     # True if required arguments were provided
     def arguments_valid?
       # TO DO - implement your real logic here
-      true if @arguments.length == 1 
+      true #if @arguments.length == 1 
     end
     
     # Setup the arguments
@@ -141,17 +140,36 @@ class App
     def process_command
       # TO DO - do whatever this app does
       
-      #process_standard_input # [Optional]
+      get_server
+      get_username
+      get_password
+      
+      #process_standard_input
+    end
+    
+    def get_server
+      print 'Zadajte prosim adresu MySQL servera: '
+      @server = URI.parse(gets)
+      rescue URI::InvalidURIError
+        puts 'Zadana adresa nie je spravna, skontrolujte prosim jej spravnost.'
+    end
+    
+    def get_username
+      print 'Zadajte prosim MySQL pouzivatelske meno: '
+      @username = gets
+    end
+    
+    def get_password
+      @password = ask("Zadajte prosim MySQL pouzivatelske heslo: ") { |q| q.echo = "x" }
     end
 
     def process_standard_input
       input = @stdin.read      
       # TO DO - process input
       
-      # [Optional]
-      #@stdin.each do |line| 
-      #  # TO DO - process each line
-      #end
+      @stdin.each do |line| 
+        puts line
+      end
     end
 end
 
