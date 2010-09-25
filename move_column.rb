@@ -45,6 +45,7 @@ Bundler.require
 
 require 'ostruct'
 require 'date'
+require 'active_support/inflector'
 
 class App
   VERSION = '0.0.1'
@@ -140,27 +141,90 @@ class App
     def process_command
       # TO DO - do whatever this app does
       
-      get_server
-      get_username
-      get_password
+      while true do
+        table = init
+        break if table
+      end
+      
+      create_activerecord_model(table.singularize.capitalize)
+      model = table.capitalize.classify.constantize
+      
+      master_column = get_master_column
+      test_column(model, master_column) do
+        target_column = get_target_column
+        test_column(model, target_column) do
+        end
+      end
       
       #process_standard_input
     end
     
+    
+    def get_target_column
+      ask('Zadajte prosim `target` stlpec: ') { |q| q.validate = /\w+/}
+    end
+    
+    def test_column(model, column)
+      model.first.send column.to_sym
+      yield
+      rescue
+        puts 'Zadany stlpec neexistuje, skontrolujte prosim spravnost zadanych udajov a skuste znova.'
+    end
+    
+    def get_master_column
+      ask('Zadajte prosim `master` stlpec: ') { |q| q.validate = /\w+/}
+    end
+    
+    def init
+      host = get_server
+      username = get_username
+      password = get_password
+      database = get_database
+      establish_connection(host, database, username, password)
+      table = get_table
+      
+      ActiveRecord::Base.connection.execute("select * from #{table} limit 1")
+      
+      return table
+      rescue
+        puts 'Pri pripajani na databazu nastala chyba, skontrolujte prosim spravnost udajov a dostupnost databazy a skuste znova.'
+    end
+    
+    def establish_connection(host, database, username, password)
+      ActiveRecord::Base.establish_connection(
+        :adapter  => "mysql2",
+        :host     => host,
+        :database => database,
+        :username => username,
+        :password => password
+      )
+    end
+    
     def get_server
-      print 'Zadajte prosim adresu MySQL servera: '
-      @server = URI.parse(gets)
+      url = ask('Zadajte prosim adresu MySQL servera: ') { |q| q.default = '127.0.0.1'}
+      URI.parse(url)
+      url
       rescue URI::InvalidURIError
         puts 'Zadana adresa nie je spravna, skontrolujte prosim jej spravnost.'
     end
     
     def get_username
-      print 'Zadajte prosim MySQL pouzivatelske meno: '
-      @username = gets
+      ask('Zadajte prosim MySQL pouzivatelske meno: ') { |q| q.validate = /\w+/}
     end
     
     def get_password
-      @password = ask("Zadajte prosim MySQL pouzivatelske heslo: ") { |q| q.echo = "x" }
+      ask('Zadajte prosim MySQL pouzivatelske heslo: ') do |q| 
+        q.echo = "x"
+        q.validate = /\w+/
+      end
+    end
+    
+    def get_database
+      ask('Zadajte prosim MySQL databazu: ') { |q| q.validate = /\w+/}
+    end
+    
+    def get_table
+      ask('Zadajte prosim MySQL tabulku: ') { |q| q.validate = /\w+/}
     end
 
     def process_standard_input
@@ -175,6 +239,10 @@ end
 
 
 # TO DO - Add your Modules, Classes, etc
+
+def create_activerecord_model(name)
+  eval("class #{name} < ActiveRecord::Base; end")
+end
 
 
 # Create and run the application
