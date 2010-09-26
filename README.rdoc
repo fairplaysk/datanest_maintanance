@@ -13,7 +13,7 @@ SW zisti, ci je na poslednom riadku v tabulke, ak ano, program sa ukonci – vyp
 SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz spracovanych riadkov. 
 SW prejde na dalsi riadok.
 
-== TODO
+= TODO
 
 == Aplikacia „Kopírovanie stĺpca do inej tabulky“
 pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. SW si vypyta meno tabulky (master), v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. SW si vypyta meno tabulky (target), v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. SW porovna pocet riadkov v tabulke master a v tabulke target – ak sa nezhoduju oznami to (program skonci)
