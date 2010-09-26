@@ -52,16 +52,17 @@ class App
     create_activerecord_model(table.singularize.capitalize)
     model = table.capitalize.classify.constantize
   
-    master_column = get_master_column
+    master_column = get_column('master')
     test_column(model, master_column) do
-      target_column = get_target_column
+      target_column = get_column('target')
       test_column(model, target_column) do
         model.all.each_with_index do |row, index|
           if row != nil
             update_decision(model, master_column, target_column)
-          elsif
-            model.send("#{target_column}=", model.send(master_column))
-            model.save!
+          else
+            row.send("#{target_column}=", model.send(master_column))
+            row.send("#{master_column}=", nil)
+            row.save!
           end
           puts "Spracovanych #{index+1} riadkov." if index % 20 == 0
         end
@@ -80,6 +81,10 @@ class App
       menu.choices('preskocit')
       menu.choices('ukoncit program'){ exit }
     end
+  end
+  
+  def output_version
+    puts "#{File.basename(__FILE__)} version #{VERSION}"
   end
 end
 

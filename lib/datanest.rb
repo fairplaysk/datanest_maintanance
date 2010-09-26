@@ -4,12 +4,8 @@ module Datanest
   end
   
   
-  def get_target_column
-    ask('Zadajte prosim `target` stlpec: ') { |q| q.validate = /\w+/}
-  end
-  
-  def get_master_column
-    ask('Zadajte prosim `master` stlpec: ') { |q| q.validate = /\w+/}
+  def get_column(name = nil)
+    ask("Zadajte prosim `#{name}` stlpec: ") { |q| q.validate = /\w+/}
   end
   
   def test_column(model, column)
@@ -25,7 +21,7 @@ module Datanest
     password = get_password
     database = get_database
     establish_connection(host, database, username, password)
-    table = get_table
+    table = get_table('master')
     
     ActiveRecord::Base.connection.execute("select * from #{table} limit 1")
     
@@ -67,7 +63,7 @@ module Datanest
     ask('Zadajte prosim MySQL databazu: ') { |q| q.validate = /\w+/}
   end
   
-  def get_table
-    ask('Zadajte prosim MySQL tabulku: ') { |q| q.validate = /\w+/}
+  def get_table(name = nil)
+    ask("Zadajte prosim MySQL #{name} tabulku: ") { |q| q.validate = /\w+/}
   end
 end
