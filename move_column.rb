@@ -1,43 +1,35 @@
 #!/usr/bin/env ruby 
 
-# == Synopsis 
-#   This is a sample description of the application.
-#   Blah blah blah.
+# == Aplikacia „Prenesenie stlpca v ramci datasetu“ 
+#   pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. 
+#   SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
+#   SW si vypyta meno stlpca (master), ktoreho obsah chce preniest. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). 
+#   SW si vypyta meno stlpca (target), do ktoreho chce prenasany obsah zapisat. Ak neexistuje, oznami to (a program skonci). 
+#   SW hodnotu poctu spracovanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
+#   
+#   spracovanie riadku 
+#   SW v riadku zisti hodnotu stlpca target – ak je nenulová, oznámi to a spyta sa, ci hodnotu má prepísať, riadok preskocit alebo program ukoncit. 
+#   Podla toho program ukonci, prejde na dalsi riadok. Ak ma prepisat hodnotu, pokracuje. SW nacita hodnotu master a zapise ju do target. 
+#   K hodnote urcujucej pocet spracovanych riadkov pripocita 1. SW zmaze hodnotu v stlpci master. 
+#   SW zisti, ci je na poslednom riadku v tabulke, ak ano, program sa ukonci – vypise o tom oznam, kde uvedie, kolko riadkov spracoval. 
+#   SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz spracovanych riadkov. 
+#   SW prejde na dalsi riadok.
 #
-# == Examples
-#   This command does blah blah blah.
-#     ruby_cl_skeleton foo.txt
-#
-#   Other examples:
-#     ruby_cl_skeleton -q bar.doc
-#     ruby_cl_skeleton --verbose foo.html
-#
-# == Usage 
-#   ruby_cl_skeleton [options] source_file
-#
-#   For help use: ruby_cl_skeleton -h
+# == Usage
+#   For help use: move_skeleton.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
 #   -v, --version       Display the version, then exit
 #   -q, --quiet         Output as little as possible, overrides verbose
 #   -V, --verbose       Verbose output
-#   TO DO - add additional options
 #
 # == Author
-#   YourName
+#   Michal Olah
 #
 # == Copyright
-#   Copyright (c) 2007 YourName. Licensed under the MIT License:
-#   http://www.opensource.org/licenses/mit-license.php
-
-
-# TO DO - replace all ruby_cl_skeleton with your app name
-# TO DO - replace all YourName with your actual name
-# TO DO - update Synopsis, Examples, etc
-# TO DO - change license if necessary
-
-# zip = ask("Zip?  ") { |q| q.validate = /\A\d{5}(?:-?\d{4})?\Z/ }
+#   Copyright (c) 2010 Michal Olah. Licensed under the ??? License:
+#   http://link_to_licence
 
 require 'rubygems'
 require 'bundler/setup'
@@ -158,6 +150,7 @@ class App
               update_decision(model, master_column, target_column)
             elsif
               model.send("#{target_column}=", model.send(master_column))
+              model.save!
             end
             puts "Spracovanych #{index} riadkov." if index % 20 == 0
           end
@@ -172,7 +165,7 @@ class App
       choose do |menu|
         menu.prompt = "Hodnota v stlpci `target` je nenulova. Co si zelate spravit?"
 
-        menu.choice('prepisat') { model.send("#{target_column}=", model.send(master_column)) }
+        menu.choice('prepisat') { model.send("#{target_column}=", model.send(master_column)); model.save!; }
         menu.choices('preskocit')
         menu.choices('ukoncit program'){ exit }
       end
