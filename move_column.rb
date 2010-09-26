@@ -16,7 +16,7 @@
 #   SW prejde na dalsi riadok.
 #
 # == Usage
-#   For help use: move_skeleton.rb -h
+#   For help use: move_column.rb -h
 #
 # == Options
 #   -h, --help          Displays help message
@@ -53,7 +53,6 @@ class App
     @options = OpenStruct.new
     @options.verbose = false
     @options.quiet = false
-    # TO DO - add additional defaults
   end
 
   # Parse options, check arguments, then process the command
@@ -109,18 +108,16 @@ class App
 
     # True if required arguments were provided
     def arguments_valid?
-      # TO DO - implement your real logic here
-      true #if @arguments.length == 1 
+      true
     end
     
     # Setup the arguments
     def process_arguments
-      # TO DO - place in local vars, etc
     end
     
     def output_help
       output_version
-      #RDoc::usage() #exits app
+      RDoc::usage_no_exit #exits app
     end
     
     def output_usage
@@ -152,7 +149,7 @@ class App
               model.send("#{target_column}=", model.send(master_column))
               model.save!
             end
-            puts "Spracovanych #{index} riadkov." if index % 20 == 0
+            puts "Spracovanych #{index+1} riadkov." if index % 20 == 0
           end
           puts "Spracovanie dat ukoncene. Celkovo bolo spracovanych #{model.count} riadkov."
         end
