@@ -1,23 +1,23 @@
 #!/usr/bin/env ruby 
 
 # == Aplikacia „Kopírovanie stĺpca do inej tabulky“
-# ===pripojenie k databaze 
+# === pripojenie k databaze 
 # SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. 
 # SW si vypyta meno tabulky (master), v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
 # SW si vypyta meno tabulky (target), v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
 # SW porovna pocet riadkov v tabulke master a v tabulke target – ak sa nezhoduju oznami to (program skonci)
 # 
-# ===test integrity 
+# === test integrity 
 # SW si vypyta meno stlpca (master-master) v tabulke master, ktoreho obsah chce preniest. 
 # Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). 
 # SW si vypyta meno stlpca s kontrolnym ID v tabulke master, ktoreho obsah chce preniest. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). 
 # SW si vypyta meno stlpca (target-target) v tabulke target, do ktoreho chce prenasany obsah zapisat. Ak neexistuje, oznami to (a program skonci).
 # 
-# ===nastavenie zaciatku 
+# === nastavenie zaciatku 
 # SW hodnotu poctu spracovanych riadkov nastavi na 0. 
 # SW sa presunie na prvy riadok v tabulke master
 # 
-# ===spracovanie riadku 
+# === spracovanie riadku 
 # SW zisti hodnotu kontrolneho ID v tabulke master 
 # SW vyhlada v tabulke target riadok s rovnakym ID ako je hodnota „kontrolneho ID“ v tabulke master. 
 # SW zisti hodnotu stlpca target-target v tabulke target (v riadku, ktoreho ID=hodnota kontrolneho ID) – ak je nenulová, oznámi to a spyta sa, ci hodnotu má prepísať, riadok preskocit alebo program ukoncit. Podla toho program ukonci alebo prejde na dalsi riadok (otestuje, ci uz nepresiel vsetky) v tabulke master. Ak ma prepisat hodnotu, pokracuje. 
