@@ -12,3 +12,11 @@ K hodnote urcujucej pocet spracovanych riadkov pripocita 1. SW zmaze hodnotu v s
 SW zisti, ci je na poslednom riadku v tabulke, ak ano, program sa ukonci – vypise o tom oznam, kde uvedie, kolko riadkov spracoval. 
 SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz spracovanych riadkov. 
 SW prejde na dalsi riadok.
+
+
+= Author
+Michal Olah
+
+= Copyright
+Copyright (c) 2010 Michal Olah. Licensed under the ??? License:
+http://link_to_licence
