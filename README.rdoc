@@ -1,11 +1,11 @@
 == Aplikacia „Prenesenie stlpca v ramci datasetu“ 
-pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. 
+=== pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. 
 SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
 SW si vypyta meno stlpca (master), ktoreho obsah chce preniest. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). 
 SW si vypyta meno stlpca (target), do ktoreho chce prenasany obsah zapisat. Ak neexistuje, oznami to (a program skonci). 
 SW hodnotu poctu spracovanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
 
-spracovanie riadku 
+=== spracovanie riadku 
 SW v riadku zisti hodnotu stlpca target – ak je nenulová, oznámi to a spyta sa, ci hodnotu má prepísať, riadok preskocit alebo program ukoncit. 
 Podla toho program ukonci, prejde na dalsi riadok. Ak ma prepisat hodnotu, pokracuje. SW nacita hodnotu master a zapise ju do target. 
 K hodnote urcujucej pocet spracovanych riadkov pripocita 1. SW zmaze hodnotu v stlpci master. 
@@ -41,7 +41,7 @@ SW prejde na spracovanie dalsieho riadku v tabulke master.
 treba ratat aj s prazdnym obsahom – ten tiez treba „kopirovat/preniest“...
 
 == Aplikacia „Mazanie celého obsahu tabuľky“ 
-pripojenie k databaze 
+=== pripojenie k databaze 
 SW si vypýta MySQL host address, username, password a nazov databazy 
 SW sa pokusi pripojit a oznami vysledok. 
 SW si vypyta meno tabulky, ktorej obsah chce zmazat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
@@ -50,14 +50,14 @@ SW upozorni, ze zmazanim obsahu tabulky dojde aj k strate priradenych komentáro
 SW polozi otazku „Peter o tom vie?“ Ak je odpoved nie, program sa ukonci.
 SW hodnotu poctu zmazanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
 
-spracovanie riadku 
+=== spracovanie riadku 
 SW zmaze riadok. K hodnote poctu zmazanych riadkov pricita 1. 
 SW zisti, ci je na poslednom riadku v tabulke, ak ano, – vypise oznam, ze ukoncil program, uvedie, kolko riadkov zmazal a program ukonci. 
 SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz zmazanych riadkov. 
 SW prejde na dalsi riadok.
 
 == Aplikacia „Doplnenie ICO“ 
-pripojenie k databaze 
+=== pripojenie k databaze 
 SW si vypýta MySQL host address, username, password a nazov databazy 
 SW sa pokusi pripojit a oznami vysledok. 
 SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
@@ -65,10 +65,10 @@ SW si vypyta meno stlpca (target_ICO), kam ma zapisat ICO. Skontroluje jeho exis
 SW si vypyta meno stlpca (target_orig), kam ma zapisat informaciu o tom, ci ICO je povodne, alebo nie (doplnene). Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
 SW si vypyta meno stlpca (firma), kde je hodnota popisujuca nazov firmy. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
 
-zaciatok 
+=== zaciatok 
 SW zacne spracovavat prvy riadok.
 
-spracovanie riadku 
+=== spracovanie riadku 
 SW overi, ci uz nepresiel cez vsetky riadky – ak ano, vypise, ze spracoval celu tabulku a skonci. 
 SW skontroluje, obsah stlpca target_ICO – ak je nenulovy, zapise hodnotu „orig“ do stlpca target_orig a prejde na dalsi riadok. 
 SW nacita obsah stlpca firma, ak ne nulovy, preskoci na spracovanie dalsieho riadku, ak je nenulovy, zobrazi ho. 
@@ -79,7 +79,8 @@ SW porovna ho (vymyslite ako) s nazvami firiem v regise.
 ***** Ak uzivatel vyberie niektory z „podobnych“ nazvov, ktore program ponukol, zapise do stlpca target_ICO hodnotu ICO pre vybranu firmu, ktorú uvadza regis. Zapise hodnotu „manual“ do stlpca target_orig. Program prejde na spracovanie dalsieho riadku. 
 *** Ak najde zhodny nazov, zapise do stlpca target_ICO hodnotu zistenu v regise. Zapise hodnotu „auto“ do stlpca target_orig
 
-poznamky Program by mal vyhodnotit ako totozne firmy aj tie, ktorú maju pravnu formu zapisanu roznym sposobom napr. spoločnosť ručením obmedzenym=s .r. o.=sro=spol. s r. o. a pod. Idealne by bolo, keby vyuzival nejaku tobulku (csv?), ktoru by uzivatel mohol doplnovat.
+=== poznamky
+Program by mal vyhodnotit ako totozne firmy aj tie, ktorú maju pravnu formu zapisanu roznym sposobom napr. spoločnosť ručením obmedzenym=s .r. o.=sro=spol. s r. o. a pod. Idealne by bolo, keby vyuzival nejaku tobulku (csv?), ktoru by uzivatel mohol doplnovat.
 
 = TODO
 
