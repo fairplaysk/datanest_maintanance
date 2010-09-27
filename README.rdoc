@@ -40,12 +40,23 @@ SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz spracovanych
 SW prejde na spracovanie dalsieho riadku v tabulke master.
 treba ratat aj s prazdnym obsahom – ten tiez treba „kopirovat/preniest“...
 
-= TODO
-
 == Aplikacia „Mazanie celého obsahu tabuľky“ 
-pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. SW si vypyta meno tabulky, ktorej obsah chce zmazat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. SW zisti pocet riadkov v tabulke a zapamata si ho. Vypise ho a opyta sa, ci uzivatel chce obsah tabulky zmazat. Ak nie, program sa ukonci. SW upozorni, ze zmazanim obsahu tabulky dojde aj k strate priradenych komentárov a inych udajov, ktore sa viazu na zaznamy v tabulke a opyta sa, ci uzivatel chce pokracovat. Ak nie, program sa ukonci. SW polozi otazku „Peter o tom vie?“ Ak je odpoved nie, program sa ukonci.
+pripojenie k databaze 
+SW si vypýta MySQL host address, username, password a nazov databazy 
+SW sa pokusi pripojit a oznami vysledok. 
+SW si vypyta meno tabulky, ktorej obsah chce zmazat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
+SW zisti pocet riadkov v tabulke a zapamata si ho. Vypise ho a opyta sa, ci uzivatel chce obsah tabulky zmazat. Ak nie, program sa ukonci. 
+SW upozorni, ze zmazanim obsahu tabulky dojde aj k strate priradenych komentárov a inych udajov, ktore sa viazu na zaznamy v tabulke a opyta sa, ci uzivatel chce pokracovat. Ak nie, program sa ukonci. 
+SW polozi otazku „Peter o tom vie?“ Ak je odpoved nie, program sa ukonci.
 SW hodnotu poctu zmazanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
-spracovanie riadku SW zmaze riadok. K hodnote poctu zmazanych riadkov pricita 1. SW zisti, ci je na poslednom riadku v tabulke, ak ano, – vypise oznam, ze ukoncil program, uvedie, kolko riadkov zmazal a program ukonci. SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz zmazanych riadkov. SW prejde na dalsi riadok.
+
+spracovanie riadku 
+SW zmaze riadok. K hodnote poctu zmazanych riadkov pricita 1. 
+SW zisti, ci je na poslednom riadku v tabulke, ak ano, – vypise oznam, ze ukoncil program, uvedie, kolko riadkov zmazal a program ukonci. 
+SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz zmazanych riadkov. 
+SW prejde na dalsi riadok.
+
+= TODO
 
 == Aplikacia „Doplnenie ICO“ 
 pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. SW si vypyta meno stlpca (target_ICO), kam ma zapisat ICO. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). SW si vypyta meno stlpca (target_orig), kam ma zapisat informaciu o tom, ci ICO je povodne, alebo nie (doplnene). Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
