@@ -49,7 +49,7 @@ class App
       break if table
     end
   
-    create_activerecord_model(table.singularize.capitalize)
+    create_activerecord_model(table.singularize.camelize)
     model = table.capitalize.classify.constantize
   
     master_column = get_column('master')

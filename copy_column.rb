@@ -61,11 +61,11 @@ class App
       break if master_table
     end
   
-    create_activerecord_model(master_table.singularize.capitalize)
+    create_activerecord_model(master_table.singularize.camelize)
     master_model = master_table.capitalize.classify.constantize
     
     target_table = get_table('target')
-    create_activerecord_model(target_table.singularize.capitalize)
+    create_activerecord_model(target_table.singularize.camelize)
     target_model = target_table.capitalize.classify.constantize
     
     master_column = get_column('master')
