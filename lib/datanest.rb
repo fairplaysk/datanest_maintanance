@@ -16,18 +16,20 @@ module Datanest
   end
   
   def init
-    host = get_server
-    username = get_username
-    password = get_password
-    database = get_database
-    establish_connection(host, database, username, password)
-    table = get_table('master')
+    while true do
+      begin
+        host = get_server
+        username = get_username
+        password = get_password
+        database = get_database
+        establish_connection(host, database, username, password)
+        puts 'Udaje na pripojenie k databaze boli zadane spravne.'
     
-    ActiveRecord::Base.connection.execute("select * from #{table} limit 1")
-    
-    return table
-    rescue
-      puts 'Pri pripajani na databazu nastala chyba, skontrolujte prosim spravnost udajov a dostupnost databazy a skuste znova.'
+        break
+      rescue
+        puts 'Pri pripajani na databazu nastala chyba, skontrolujte prosim spravnost udajov a dostupnost databazy a skuste znova.'
+      end
+    end
   end
   
   def establish_connection(host, database, username, password)
@@ -38,6 +40,31 @@ module Datanest
       :username => username,
       :password => password
     )
+    ActiveRecord::Base.connection.transaction
+  end
+  
+  def get_and_test_table(name = 'master')
+    while true do
+      begin
+        table = get_table(name)
+        create_activerecord_model(table.singularize.camelize)
+        model = table.capitalize.classify.constantize
+        break if model.columns
+      rescue
+        puts 'Zadana tabulka sa v databaze nenachadza.'
+        quit_or_retry
+      end
+    end
+    return table, model
+  end
+  
+  def get_and_test_column(model, column_id)
+    column_name = get_column(column_id)
+    unless model.columns_hash.keys.include?(column_name)
+      puts "Zadany stlpec `#{column_name}` sa nenachadza v tabulke `#{model.table_name}`.\nSkontrolujte prosim zadane udaje a skuste znova.\nProgram sa teraz ukonci."
+      exit
+    end
+    return column_name
   end
   
   def get_server

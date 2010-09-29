@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby 
 
 # == Aplikacia „Mazanie celého obsahu tabuľky“ 
-# pripojenie k databaze 
+# === pripojenie k databaze 
 # SW si vypýta MySQL host address, username, password a nazov databazy 
 # SW sa pokusi pripojit a oznami vysledok. 
 # SW si vypyta meno tabulky, ktorej obsah chce zmazat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
@@ -10,7 +10,7 @@
 # SW polozi otazku „Peter o tom vie?“ Ak je odpoved nie, program sa ukonci.
 # SW hodnotu poctu zmazanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
 # 
-# spracovanie riadku 
+# === spracovanie riadku 
 # SW zmaze riadok. K hodnote poctu zmazanych riadkov pricita 1. 
 # SW zisti, ci je na poslednom riadku v tabulke, ak ano, – vypise oznam, ze ukoncil program, uvedie, kolko riadkov zmazal a program ukonci. 
 # SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz zmazanych riadkov. 
@@ -44,37 +44,31 @@ require './lib/app'
 
 class App
   def process_command
-  
-    while true do
-      table = init
-      break if table
-    end
-  
-    create_activerecord_model(table.singularize.camelize)
-    model = table.capitalize.classify.constantize
+    init
+    master_table_name, master_model = get_and_test_table('master')
     
-    row_count = model.count
     rows_affected = 0
-    if confirm_delete(row_count)
+    puts "V zadanej tabulke sa nachadza #{master_model.count} riadkov. Naozaj si zelate vsetky zmazat?"
+    if confirm_delete
+      puts "Zmazanim obsahu tabulky dojde aj k strate priradenych komentarov a inych udajov, ktore sa viazu na zaznamy v tabulke! Zelate si napriek tomu pokracovat?"
       if ask_again
+        puts "Peter o tom vie?"
         if peter_knows?
           puts "Zacina sa s mazanim..."
-          rows_affected = model.delete_all
+          rows_affected = master_model.delete_all
           puts "Mazanie sa uspesne ukoncilo. Vymazalo sa #{rows_affected} riadkov."
         end
       end
     end
-        # 
-        # rescue
-        #   puts 'Pri mazani nastala chyba. Skontrolujte udaje a vyskusajte znova.'
-        # 
+    
+    rescue
+      puts 'Pri mazani nastala chyba. Skontrolujte udaje a vyskusajte znova.'
+      
     #process_standard_input
   end
   
-  def confirm_delete(row_count)
+  def confirm_delete
     choose do |menu|
-      menu.prompt = "V zadanej tabulke sa nachadza #{row_count} riadkov. Naozaj si zelate vsetky zmazat?"
-
       menu.choice('ano') { return true }
       menu.choices('nie') { return false }
     end
@@ -82,8 +76,6 @@ class App
   
   def ask_again
     choose do |menu|
-      menu.prompt = "Zmazanim obsahu tabulky dojde aj k strate priradenych komentarov a inych udajov, ktore sa viazu na zaznamy v tabulke! Zelate si napriek tomu pokracovat?"
-
       menu.choice('ano') { return true }
       menu.choices('nie') { return false }
     end
@@ -91,8 +83,6 @@ class App
   
   def peter_knows?
     choose do |menu|
-      menu.prompt = "Peter o tom vie?"
-
       menu.choice('nie') { return false }
       menu.choices('ano') { return true }
     end

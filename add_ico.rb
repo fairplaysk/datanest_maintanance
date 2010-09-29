@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby 
 
 # == Aplikacia „Doplnenie ICO“ 
-# pripojenie k databaze 
+# === pripojenie k databaze 
 # SW si vypýta MySQL host address, username, password a nazov databazy 
 # SW sa pokusi pripojit a oznami vysledok. 
 # SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
@@ -9,10 +9,10 @@
 # SW si vypyta meno stlpca (target_orig), kam ma zapisat informaciu o tom, ci ICO je povodne, alebo nie (doplnene). Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
 # SW si vypyta meno stlpca (firma), kde je hodnota popisujuca nazov firmy. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
 # 
-# zaciatok 
+# === zaciatok 
 # SW zacne spracovavat prvy riadok.
 # 
-# spracovanie riadku 
+# === spracovanie riadku 
 # SW overi, ci uz nepresiel cez vsetky riadky – ak ano, vypise, ze spracoval celu tabulku a skonci. 
 # SW skontroluje, obsah stlpca target_ICO – ak je nenulovy, zapise hodnotu „orig“ do stlpca target_orig a prejde na dalsi riadok. 
 # SW nacita obsah stlpca firma, ak ne nulovy, preskoci na spracovanie dalsieho riadku, ak je nenulovy, zobrazi ho. 
@@ -23,7 +23,9 @@
 # ***** Ak uzivatel vyberie niektory z „podobnych“ nazvov, ktore program ponukol, zapise do stlpca target_ICO hodnotu ICO pre vybranu firmu, ktorú uvadza regis. Zapise hodnotu „manual“ do stlpca target_orig. Program prejde na spracovanie dalsieho riadku. 
 # *** Ak najde zhodny nazov, zapise do stlpca target_ICO hodnotu zistenu v regise. Zapise hodnotu „auto“ do stlpca target_orig
 # 
-# poznamky Program by mal vyhodnotit ako totozne firmy aj tie, ktorú maju pravnu formu zapisanu roznym sposobom napr. spoločnosť ručením obmedzenym=s .r. o.=sro=spol. s r. o. a pod. Idealne by bolo, keby vyuzival nejaku tobulku (csv?), ktoru by uzivatel mohol doplnovat.
+# === poznamky 
+# Program by mal vyhodnotit ako totozne firmy aj tie, ktorú maju pravnu formu zapisanu roznym sposobom napr. spoločnosť ručením obmedzenym=s .r. o.=sro=spol. s r. o. a pod. 
+# Idealne by bolo, keby vyuzival nejaku tobulku (csv?), ktoru by uzivatel mohol doplnovat.
 #
 # == Usage
 #   For help use: add_ico.rb -h
@@ -53,57 +55,44 @@ require './lib/app'
 
 class App
   def process_command
-  
-    while true do
-      table = init
-      break if table
-    end
-  
-    create_activerecord_model(table.singularize.camelize)
-    model = table.capitalize.classify.constantize
+    init
+    target_table_name, target_model = get_and_test_table('target')
+    regis_table_name, regis_model = get_and_test_table('regis')
     
-    regis_table = get_table('regis')
-    create_activerecord_model(regis_table.singularize.camelize)
-    regis_model = regis_table.capitalize.classify.constantize
-    
-    target_ICO = get_column('target_ICO')
-    test_column(model, target_ICO) do
-      target_original = get_column('target_original')
-      test_column(model, target_original) do
-        firm = get_column('firm')
-        test_column(model, firm) do
-          
-          model.all.each do |element|
-            if element.send(target_ICO) != nil
-              element.send("#{target_original}=", 'orig')
-              element.save!
-              next
-            end
-            
-            model_firm = element.send(firm)
-            
-            if model_firm == nil
-              next
-            else
-              puts "Prave sa spracovava ICO firmy: #{model_firm}"
-              regis_search = regis_model.find_by_name(model_firm)
-              if regis_search != nil
-                element.send("#{target_original}=", 'orig'); element.send("#{target_ICO}=", regis_search.ico);
-              else
-                regis_like_search = regis_model.where("name like '%?%'", model_firm)
-                puts "Presna zdhoda v regis-e sa nepodarila najst. Hladam podobne firmy"
-                selected_ico = select_ico(regis_like_search)
-                next if select_ico == "skip"
-                if select_ico.respond_to?('ico')
-                  element.send("#{target_original}=", 'manual'); element.send("#{target_ICO}=", select_ico.ico); 
-                else
-                  element.send("#{target_original}=", 'manual'); element.send("#{target_ICO}=", select_ico); 
-                end
-                element.save!
-              end
-            end
+    target_ICO_name = get_and_test_column(target_model, 'target_ICO')
+    target_original_name = get_and_test_column(target_model, 'target_original')
+    target_firm_name = get_and_test_column(target_model, 'target_firm')
+  
+    target_model.all.each do |target_element|
+      if target_element.send(target_ICO_name) != nil
+        target_element.send("#{target_original_name}=", 'orig')
+        target_element.save!
+        next
+      end
+      
+      target_model_firm = target_element.send(target_firm_name)
+      
+      if target_model_firm == nil
+        next
+      else
+        puts "Prave sa spracovava ICO firmy: #{target_model_firm}"
+        regis_search = regis_model.find_by_name(target_model_firm)
+        if regis_search != nil
+          puts "Firma najdena v regis-e"
+          target_element.send("#{target_original_name}=", 'orig'); target_element.send("#{target_ICO_name}=", regis_search.ico);
+          target_element.save!
+        else
+          puts "Presna zdhoda v regis-e sa nepodarila najst. Hladam podobne firmy"
+          regis_like_search = regis_model.where("name like ?", "%#{target_model_firm}%")
+          selected_ico = select_ico(regis_like_search)
+          next if selected_ico == "skip"
+          target_element.send("#{target_original_name}=", 'manual')
+          if selected_ico.respond_to?('ico')
+            target_element.send("#{target_ICO_name}=", selected_ico.ico)
+          else
+            target_element.send("#{target_ICO_name}=", selected_ico)
           end
-          
+          target_element.save!
         end
       end
     end
@@ -119,10 +108,10 @@ class App
       menu.prompt = "Vyberte prosim cislo jednej z firiem, alebo jednu z ostatnych akcii."
       
       regis_like_search.each do |regis_like_result|
-        menu.choise("Vybrat firmu: #{regis_like_result.name}; ICO: #{regis_like_result.ico}\n") { return regis_like_result }
+        menu.choice("Vybrat firmu: #{regis_like_result.name}; ICO: #{regis_like_result.ico}\n") { return regis_like_result }
       end
-      menu.choise('Zadat ICO manualne') { return ask_for_ico }
-      menu.choise('Preskocit riadok') { return "skip" }
+      menu.choices('Zadat ICO manualne') { return ask_for_ico }
+      menu.choices('Preskocit riadok') { return "skip" }
     end
   end
   

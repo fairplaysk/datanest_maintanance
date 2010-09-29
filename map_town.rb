@@ -53,45 +53,29 @@ require './lib/app'
 
 class App
   def process_command
-  
-    while true do
-      table = init
-      break if table
+    init
+    master_table_name, master_model = get_and_test_table('master')
+    target_table_name, target_model = get_and_test_table('target')
+    
+    target_mesto_column_name = get_and_test_column(target_model, 'target_mesto')
+    target_geolokacia_column_name = get_and_test_column(target_model, 'target_geolokacia')
+    master_mesto_column_name = get_and_test_column(master_model, 'master_mesto')
+    master_id_column_name = get_and_test_column(master_model, 'master_id')
+
+    puts "Spracovavanie dat zacalo. Celkovo je v tabulke #{target_model.count} zaznamov."
+    elements_saved, elements_processed = 0, 0
+    target_model.all.each_with_index do |target_element, index|
+      elements_processed += 1
+      puts "Spracovavam zaznam cislo #{index+1}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if index % 20 == 0
+      next if target_element.send("#{target_geolokacia_column_name}")
+      next unless target_element.send(target_mesto_column_name)
+      master_search = master_model.send("find_by_#{master_mesto_column_name}", target_element.send(target_mesto_column_name))
+      next unless master_search
+      target_element.send("#{target_geolokacia_column_name}=", master_search.send(master_id_column_name))
+      target_element.save!
+      elements_saved += 1
     end
-    
-    create_activerecord_model(table.singularize.camelize)
-    master_model = table.capitalize.classify.constantize
-    
-    target_table = get_table('target')
-    create_activerecord_model(target_table.singularize.camelize)
-    target_model = target_table.capitalize.classify.constantize
-    
-    target_mesto = get_column('target_mesto')
-    test_column(target_model, target_mesto) do
-      target_geolocation = get_column('target_geolokacia')
-      test_column(target_model, target_geolocation) do
-        master_mesto = get_column('master_mesto')
-        test_column(master_model, master_mesto) do          
-          master_id = get_column('master_id')
-          test_column(master_model, master_id) do
-            puts "Spracovavanie dat zacalo. Celkovo je v tabulke #{target_model.count} zaznamov."
-            elements_saved, elements_processed = 0, 0
-            target_model.all.each_with_index do |element, index|
-              elements_processed += 1
-              puts "Spracovavam zaznam cislo #{index+1}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if index % 20 == 0
-              next if element.send("#{target_geolocation}")
-              next unless element.send(target_mesto)
-              master_search = master_model.send("find_by_#{master_mesto}", element.send(target_mesto))
-              next unless master_search
-              element.send("#{target_geolocation}=", master_search.send(master_id))
-              element.save!
-              elements_saved += 1
-            end
-            puts "\n\nSpracovanie zaznamov ukoncene.\nSpracovanych zaznamov bolo: #{elements_processed}.\nUpravenych zaznamov bolo: #{elements_saved}."
-          end
-        end
-      end
-    end
+    puts "\n\nSpracovanie zaznamov ukoncene.\nSpracovanych zaznamov bolo: #{elements_processed}.\nUpravenych zaznamov bolo: #{elements_saved}."
 
     #process_standard_input
   end

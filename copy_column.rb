@@ -55,52 +55,46 @@ require './lib/app'
 
 class App
   def process_command
-  
-    while true do
-      master_table = init
-      break if master_table
+    init
+    master_table_name, master_model = get_and_test_table('master')
+    target_table_name, target_model = get_and_test_table('target')
+    if master_model.count != target_model.count
+      puts "Pocty riadkov v `master` a `target` tabulke nie su rovnake.\nMaster: #{master_model.count}.\nTarget: #{target_model.count}.\nSpracovanie dat nemoze pokracovat."
     end
-  
-    create_activerecord_model(master_table.singularize.camelize)
-    master_model = master_table.capitalize.classify.constantize
+    master_column_name, master_id_column_name = get_and_test_column(master_model, 'master_master'),  get_and_test_column(master_model, 'master_id')
+    target_column_name = get_and_test_column(target_model, 'target_target')
     
-    target_table = get_table('target')
-    create_activerecord_model(target_table.singularize.camelize)
-    target_model = target_table.capitalize.classify.constantize
+    elements_saved, elements_processed = 0, 0
     
-    master_column = get_column('master')
-    test_column(master_model, master_column) do
-      master_id_column = get_column('master_id')
-      test_column(master_model, master_id_column) do
-        target_column = get_column('target')
-        test_column(target_model, target_column) do
-          
-          master_model.all.each_with_index do |master_element, index|
-            target_element = target_model.find(master_model.send(master_id_column))
-            target_column_value = target_element.send(target_column)
-            if target_column_value != nil
-              update_decision(...)
-            else
-              target_element.send("#{target_column}=", master_element.send(master_column))
-            end
-            puts "Spracovanych #{index+1} riadkov." if index % 20 == 0
-          end
-          puts "Spracovanie dat ukoncene. Celkovo bolo spracovanych #{model.count} riadkov."
-          
+    puts "Zacina sa spracovanie dat. Pocet riadkov na spracovanie: #{master_model.count}."
+    
+    master_model.all.each do |master_element|
+      elements_processed += 1
+      puts "Spracovavam zaznam cislo #{elements_processed}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if elements_processed % 20 == 0 || elements_processed == 1
+      target_element = target_model.find(master_element.send(master_id_column_name))
+      if target_element.send(target_column_name) != nil
+        puts "Spracovavam riadok #{elements_processed}.\nV stlpci `master_master` je hodnota: #{master_element.send(master_column_name)}.\nHodnota v stlpci `target_target` je #{target_element.send(target_column_name)}.\nCo si zelate spravit?"
+        if update_decision
+          target_element.send("#{target_column_name}=", master_element.send(master_column_name)) 
+          elements_saved += 1
+        else
+          next
         end
+      else
+        target_element.send("#{target_column_name}=", master_element.send(master_column_name))
+        elements_saved += 1
       end
+      target_element.save!
     end
+    puts "\n\nSpracovanie dat ukoncene.\nPocet prepisanych riadkov: #{elements_saved}.\nPocet preskocenych riadkov: #{elements_processed-elements_saved}."
     
-  
     #process_standard_input
   end
 
-  def update_decision(master_element, target_element, master_column, target_column)
+  def update_decision
     choose do |menu|
-      menu.prompt = "Hodnota v stlpci `target` je nenulova. Co si zelate spravit?"
-
-      menu.choice('prepisat') { target_element.send("#{target_column}=", master_element.send(master_column)); target_element.save!; }
-      menu.choices('preskocit')
+      menu.choice('prepisat') { return true }
+      menu.choices('preskocit') { return false }
       menu.choices('ukoncit program'){ exit }
     end
   end

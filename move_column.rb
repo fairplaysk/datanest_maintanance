@@ -1,19 +1,19 @@
 #!/usr/bin/env ruby 
 
 # == Aplikacia „Prenesenie stlpca v ramci datasetu“ 
-#   pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. 
-#   SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
-#   SW si vypyta meno stlpca (master), ktoreho obsah chce preniest. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). 
-#   SW si vypyta meno stlpca (target), do ktoreho chce prenasany obsah zapisat. Ak neexistuje, oznami to (a program skonci). 
-#   SW hodnotu poctu spracovanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
+# === pripojenie k databaze 
+# SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. 
+# SW si vypyta meno tabulky, v ktorej bude pracovat. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
+# SW si vypyta meno stlpca (master), ktoreho obsah chce preniest. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). 
+# SW si vypyta meno stlpca (target), do ktoreho chce prenasany obsah zapisat. Ak neexistuje, oznami to (a program skonci). 
+# SW hodnotu poctu spracovanych riadkov nastavi na 0. SW zacne spracovavat prvy riadok.
 #   
-#   spracovanie riadku 
-#   SW v riadku zisti hodnotu stlpca target – ak je nenulová, oznámi to a spyta sa, ci hodnotu má prepísať, riadok preskocit alebo program ukoncit. 
-#   Podla toho program ukonci, prejde na dalsi riadok. Ak ma prepisat hodnotu, pokracuje. SW nacita hodnotu master a zapise ju do target. 
-#   K hodnote urcujucej pocet spracovanych riadkov pripocita 1. SW zmaze hodnotu v stlpci master. 
-#   SW zisti, ci je na poslednom riadku v tabulke, ak ano, program sa ukonci – vypise o tom oznam, kde uvedie, kolko riadkov spracoval. 
-#   SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz spracovanych riadkov. 
-#   SW prejde na dalsi riadok.
+# === spracovanie riadku 
+# SW v riadku zisti hodnotu stlpca target – ak je nenulová, oznámi to a spyta sa, ci hodnotu má prepísať, riadok preskocit alebo program ukoncit. Podla toho program ukonci, prejde na dalsi riadok. Ak ma prepisat hodnotu, pokracuje. 
+# SW nacita hodnotu master a zapise ju do target. K hodnote urcujucej pocet spracovanych riadkov pripocita 1. SW zmaze hodnotu v stlpci master. 
+# SW zisti, ci je na poslednom riadku v tabulke, ak ano, program sa ukonci – vypise o tom oznam, kde uvedie, kolko riadkov spracoval. 
+# SW zisti, ci pocet riadkov je delitelny 20, ak ano, vypise pocet uz spracovanych riadkov. 
+# SW prejde na dalsi riadok.
 #
 # == Usage
 #   For help use: move_column.rb -h
@@ -43,42 +43,49 @@ require './lib/app'
 
 class App
   def process_command
-  
-    while true do
-      table = init
-      break if table
-    end
-  
-    create_activerecord_model(table.singularize.camelize)
-    model = table.capitalize.classify.constantize
-  
-    master_column = get_column('master')
-    test_column(model, master_column) do
-      target_column = get_column('target')
-      test_column(model, target_column) do
-        model.all.each_with_index do |row, index|
-          if row != nil
-            update_decision(model, master_column, target_column)
-          else
-            row.send("#{target_column}=", model.send(master_column))
-            row.send("#{master_column}=", nil)
-            row.save!
-          end
-          puts "Spracovanych #{index+1} riadkov." if index % 20 == 0
+    init
+    master_table_name, master_model = get_and_test_table('master')
+    master_column_name, target_column_name = get_and_test_column(master_model, 'master'), get_and_test_column(master_model, 'target')
+    
+    elements_saved, elements_processed = 0, 0
+    
+    puts "Zacina sa spracovanie dat. Pocet riadkov na spracovanie: #{master_model.count}."
+    master_model.all.each_with_index do |element|
+      elements_processed += 1
+      puts "Spracovavam zaznam cislo #{elements_processed}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if elements_processed % 20 == 0 || elements_processed == 1
+      if element.send(target_column_name) != nil
+        puts "Spracovavam riadok #{elements_processed}.\nV stlpci `master` je hodnota: #{element.send(master_column_name)}.\nHodnota v stlpci `target` je #{element.send(target_column_name)}.\nCo si zelate spravit?"
+        if update_decision
+          element.send("#{target_column_name}=", element.send(master_column_name)) 
+          elements_saved += 1
+        else
+          next
         end
-        puts "Spracovanie dat ukoncene. Celkovo bolo spracovanych #{model.count} riadkov."
+      else
+        element.send("#{target_column_name}=", element.send(master_column_name))
+        elements_saved += 1
       end
+      element.send("#{master_column_name}=", nil)
+      element.save!
     end
-  
+    puts "\n\nSpracovanie dat ukoncene.\nPocet prepisanych riadkov: #{elements_saved}.\nPocet preskocenych riadkov: #{elements_processed-elements_saved}."
+      
     #process_standard_input
   end
 
-  def update_decision(model, master, target)
+  def quit_or_retry
     choose do |menu|
-      menu.prompt = "Hodnota v stlpci `target` je nenulova. Co si zelate spravit?"
+      menu.prompt = "Vyberte prosim akciu."
 
-      menu.choice('prepisat') { model.send("#{target_column}=", model.send(master_column)); model.save!; }
-      menu.choices('preskocit')
+      menu.choice('Ukoncit program.') { exit }
+      menu.choices('Zadat posledny vstup znova.')
+    end
+  end
+
+  def update_decision
+    choose do |menu|
+      menu.choice('prepisat') { return true }
+      menu.choices('preskocit') { return false }
       menu.choices('ukoncit program'){ exit }
     end
   end
