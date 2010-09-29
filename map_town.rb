@@ -74,17 +74,20 @@ class App
         test_column(master_model, master_mesto) do          
           master_id = get_column('master_id')
           test_column(master_model, master_id) do
-            puts 'Spracovavanie dat zacalo.'
+            puts "Spracovavanie dat zacalo. Celkovo je v tabulke #{target_model.count} zaznamov."
+            elements_saved, elements_processed = 0, 0
             target_model.all.each_with_index do |element, index|
-              puts "Spracovanych #{index} zaznamov." if index % 20 == 0
-              next unless target_geolocation
+              elements_processed += 1
+              puts "Spracovavam zaznam cislo #{index+1}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if index % 20 == 0
+              next if element.send("#{target_geolocation}")
               next unless element.send(target_mesto)
               master_search = master_model.send("find_by_#{master_mesto}", element.send(target_mesto))
               next unless master_search
               element.send("#{target_geolocation}=", master_search.send(master_id))
               element.save!
+              elements_saved += 1
             end
-            puts 'Spracovanie zaznamov ukoncene.'
+            puts "\n\nSpracovanie zaznamov ukoncene.\nSpracovanych zaznamov bolo: #{elements_processed}.\nUpravenych zaznamov bolo: #{elements_saved}."
           end
         end
       end
