@@ -83,15 +83,28 @@ SW porovna ho (vymyslite ako) s nazvami firiem v regise.
 === poznamky
 Program by mal vyhodnotit ako totozne firmy aj tie, ktorú maju pravnu formu zapisanu roznym sposobom napr. spoločnosť ručením obmedzenym=s .r. o.=sro=spol. s r. o. a pod. Idealne by bolo, keby vyuzival nejaku tobulku (csv?), ktoru by uzivatel mohol doplnovat.
 
-= TODO
-
 == Aplikacia „Doplnenie mesta“ – mapovanie
-pripojenie k databaze SW si vypýta MySQL host address, username, password a nazov databazy SW sa pokusi pripojit a oznami vysledok. SW si vypyta meno tabulky (master), v ktorej je zadane geograficke clenenie. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. SW si vypyta meno stlpca (mesto) v tabulke target, odkial bude brat hodnotu – vlastne nazov mesta, ku ktoremu sa bude snazit priradit okres a kraj. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
-SW si vypyta meno stlpca (mesto) v tabulke target, odkial bude brat hodnotu – vlastne nazov mesta, ku ktoremu sa bude snazit priradit okres a kraj. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci). SW si vypyta meno stlpca (target_geolokacia), kam ma zapisat prepojenie mesta na patricny zaznam v geolokacnej tabulke master (kde je mesto zaradene do okresu a kraja). Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
+=== pripojenie k databaze 
+SW si vypýta MySQL host address, username, password a nazov databazy 
+SW sa pokusi pripojit a oznami vysledok. 
+SW si vypyta meno tabulky (master), v ktorej je zadane geograficke clenenie. Ak taku nenajde, da na vyber zadat meno tabulky znova alebo skoncit. 
+SW si vypyta meno stlpca (mesto) v tabulke target, odkial bude brat hodnotu – vlastne nazov mesta, ku ktoremu sa bude snazit priradit okres a kraj. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
+SW si vypyta meno stlpca (target_geolokacia), kam ma zapisat prepojenie mesta na patricny zaznam v geolokacnej tabulke master (kde je mesto zaradene do okresu a kraja). Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
 SW si vypyta meno stlpca (master_mesto) v tabulke master, kde je nazov mesta. Skontroluje jeho existenciu. Ak neexistuje, oznami to (a program skonci).
-zaciatok SW prejde na prvy riadok v tabulke target
-spracovanie riadku tabulky target SW skontroluje, ci uz nespracoval celu tabulku (vsetky riadky v tabulke), ak ano, vypise to a program sa ukonci. SW v tabulke target pozrie hodnotu v stlpci target_geolokacia. Ak je nenulova, preskoci na spracovanie dalsieho riadka. SW sa v tabulke target pozrie, aka hodnota je v stlpci mesto. Ak je nulova, preskoci na spracovanie dalsieho riadku, ak nenulova, vypise ju. SW sa snazi najst rovnaku hodnotu v tabulke master v stlpci master_mesto. *** Ak ju najde, zapise v tabulke target v stlpci target_geolokacia prepojenie na patricny zaznam a prejde na spracovanie dalsieho riadku *** Ak zhodu nenajde, prejde na spracovanie dalsieho riadku.
-poznamky Problem robia mesta Kosice a Bratislava – v geolokacnej tabulke je clenenie na mestske casti a u bratislavy clenenie na obvody – bude teda potrebne zaviest aj lokaciu Bratislava a Kosice (bez presnejsieho clenenia) – v tabulkach totiz taka lokacia je najbeznejsia. SW by nemal byt citlivy na diakritiku. SW by pocas pracovania mal nieco jednoduche vypisovat – nieco, co sa meni, nech je zrejme, ze program bezi a pracuje.
+
+=== zaciatok 
+SW prejde na prvy riadok v tabulke target
+
+=== spracovanie riadku tabulky target 
+SW skontroluje, ci uz nespracoval celu tabulku (vsetky riadky v tabulke), ak ano, vypise to a program sa ukonci. 
+SW v tabulke target pozrie hodnotu v stlpci target_geolokacia. Ak je nenulova, preskoci na spracovanie dalsieho riadka. 
+SW sa v tabulke target pozrie, aka hodnota je v stlpci mesto. Ak je nulova, preskoci na spracovanie dalsieho riadku, ak nenulova, vypise ju. 
+SW sa snazi najst rovnaku hodnotu v tabulke master v stlpci master_mesto. *** Ak ju najde, zapise v tabulke target v stlpci target_geolokacia prepojenie na patricny zaznam a prejde na spracovanie dalsieho riadku *** Ak zhodu nenajde, prejde na spracovanie dalsieho riadku.
+
+=== poznamky 
+Problem robia mesta Kosice a Bratislava – v geolokacnej tabulke je clenenie na mestske casti a u bratislavy clenenie na obvody – bude teda potrebne zaviest aj lokaciu Bratislava a Kosice (bez presnejsieho clenenia) – v tabulkach totiz taka lokacia je najbeznejsia. 
+SW by nemal byt citlivy na diakritiku. 
+SW by pocas pracovania mal nieco jednoduche vypisovat – nieco, co sa meni, nech je zrejme, ze program bezi a pracuje.
 
 
 = Author
