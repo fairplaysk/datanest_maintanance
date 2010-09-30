@@ -5,7 +5,7 @@ module Datanest
   
   
   def get_column(name = nil)
-    ask("Zadajte prosim `#{name}` stlpec: ") { |q| q.validate = /\w+/}
+    ask("Zadajte prosim `#{name}` stlpec: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov stlpca musi obsahovat aspon jeden znak. Zadanie opakujte!';}
   end
   
   def test_column(model, column)
@@ -76,21 +76,22 @@ module Datanest
   end
   
   def get_username
-    ask('Zadajte prosim MySQL pouzivatelske meno: ') { |q| q.validate = /\w+/}
+    ask('Zadajte prosim MySQL pouzivatelske meno: ') { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Pouzivatelske meno musi obsahovat aspon jeden znak. Zadanie opakujte!'; }
   end
   
   def get_password
     ask('Zadajte prosim MySQL pouzivatelske heslo: ') do |q| 
       q.echo = "x"
       q.validate = /\w+/
+      q.responses[:not_valid] = 'Heslo musi obsahovat aspon jeden znak. Zadanie opakujte!'
     end
   end
   
   def get_database
-    ask('Zadajte prosim MySQL databazu: ') { |q| q.validate = /\w+/}
+    ask('Zadajte prosim MySQL databazu: ') { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov databazy musi obsahovat aspon jeden znak. Zadanie opakujte!'; }
   end
   
   def get_table(name = nil)
-    ask("Zadajte prosim MySQL #{name} tabulku: ") { |q| q.validate = /\w+/}
+    ask("Zadajte prosim MySQL #{name} tabulku: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov tabulky musi obsahovat aspon jeden znak. Zadanie opakujte!';}
   end
 end
