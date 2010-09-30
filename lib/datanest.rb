@@ -1,6 +1,6 @@
 module Datanest
-  def create_activerecord_model(name)
-    eval("class #{name} < ActiveRecord::Base; end")
+  def define_activerecord_model(name)
+    eval("class #{name.camelize} < ActiveRecord::Base; set_table_name('#{name}'); end")
   end
   
   
@@ -47,7 +47,7 @@ module Datanest
     while true do
       begin
         table = get_table(name)
-        create_activerecord_model(table.singularize.camelize)
+        define_activerecord_model(table)
         model = table.capitalize.classify.constantize
         break if model.columns
       rescue
