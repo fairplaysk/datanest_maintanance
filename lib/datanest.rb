@@ -34,7 +34,7 @@ module Datanest
   
   def establish_connection(host, database, username, password)
     ActiveRecord::Base.establish_connection(
-      :adapter  => "mysql2",
+      :adapter  => "mysql",
       :host     => host,
       :database => database,
       :username => username,
