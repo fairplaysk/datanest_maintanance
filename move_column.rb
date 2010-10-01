@@ -54,9 +54,9 @@ class App
       elements_processed += 1
       puts "Spracovavam zaznam cislo #{elements_processed}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if elements_processed % 20 == 0 || elements_processed == 1
       if element.send(target_column_name) != nil
-        puts "Spracovavam riadok #{elements_processed}.\nV stlpci `master` je hodnota: #{element.send(master_column_name)}.\nHodnota v stlpci `target` je #{element.send(target_column_name)}.\nCo si zelate spravit?"
+        puts "Spracovavam riadok #{elements_processed}.\nV stlpci `master` je hodnota: #{element.send(master_column_name) == nil ? "null" : element.send(master_column_name)}.\nHodnota v stlpci `target` je #{element.send(target_column_name)}.\nCo si zelate spravit?"
         if update_decision
-          element.send("#{target_column_name}=", element.send(master_column_name)) 
+          element.send("#{target_column_name}=", element.send(master_column_name) != nil ? element.send(master_column_name) : nil) 
           elements_saved += 1
         else
           next
