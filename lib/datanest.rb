@@ -1,6 +1,6 @@
 module Datanest
   def define_activerecord_model(name)
-    eval("class #{name.camelize} < ActiveRecord::Base; set_table_name('#{name}'); end")
+    eval("class #{name.camelize} < ActiveRecord::Base; set_table_name('#{name}'); set_primary_key ('_record_id'); end")
   end
   
   
