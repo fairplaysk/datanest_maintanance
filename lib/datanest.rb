@@ -1,6 +1,6 @@
 module Datanest
   def define_activerecord_model(name)
-    eval("class #{name.camelize} < ActiveRecord::Base; set_table_name('#{name}'); set_primary_key ('_record_id'); end")
+    eval("class #{name.classify} < ActiveRecord::Base; set_table_name('#{name}'); set_primary_key ('_record_id'); end")
   end
   
   
@@ -95,7 +95,7 @@ module Datanest
     ask("Zadajte prosim MySQL #{name} tabulku: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov tabulky musi obsahovat aspon jeden znak. Zadanie opakujte!';}
   end
   
-  def ak_for_ico
+  def ask_for_ico
     ask("Zadajte ico: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Ico musi obsahovat aspon jeden znak. Zadanie opakujte!';}
   end
 end
