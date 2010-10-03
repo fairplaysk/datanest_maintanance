@@ -93,6 +93,15 @@ module Datanest
     return table, model
   end
   
+  def quit_or_retry
+    choose do |menu|
+      menu.prompt = "Vyberte prosím akciu."
+
+      menu.choice('Ukoňčiť program.') { exit }
+      menu.choices('Zadať posledný vstup znova.')
+    end
+  end
+  
   def get_and_test_column(model, column_id)
     column_name = get_column(column_id)
     unless model.columns_hash.keys.include?(column_name)

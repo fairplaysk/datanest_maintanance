@@ -76,15 +76,6 @@ class App
     #process_standard_input
   end
 
-  def quit_or_retry
-    choose do |menu|
-      menu.prompt = "Vyberte prosím akciu."
-
-      menu.choice('Ukonňčiť program.') { exit }
-      menu.choices('Zadať posledný vstup znova.')
-    end
-  end
-  
   def output_version
     puts "#{File.basename(__FILE__)} version #{VERSION}"
   end
