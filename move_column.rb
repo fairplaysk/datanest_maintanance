@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/env ruby
+# encoding: UTF-8
 
 # == Aplikacia „Prenesenie stlpca v ramci datasetu“ 
 # === pripojenie k databaze 
@@ -49,44 +50,38 @@ class App
     
     elements_saved, elements_processed = 0, 0
     
-    puts "Zacina sa spracovanie dat. Pocet riadkov na spracovanie: #{master_model.count}."
+    put_intro(master_model.count)
     master_model.all.each_with_index do |element|
       elements_processed += 1
-      puts "Spracovavam zaznam cislo #{elements_processed}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if elements_processed % 20 == 0 || elements_processed == 1
+      puts "Spracovávam záznam číslo #{elements_processed}." if elements_processed % 20 == 0 || elements_processed == 1
       if element.send(target_column_name) != nil
-        puts "Spracovavam riadok #{elements_processed}.\nV stlpci `master` je hodnota: #{element.send(master_column_name) == nil ? "null" : element.send(master_column_name)}.\nHodnota v stlpci `target` je #{element.send(target_column_name)}.\nCo si zelate spravit?"
+        puts "Spracovávam riadok #{elements_processed}.\nV stĺpci `master` je hodnota: '#{element.send(master_column_name) == nil ? "null" : element.send(master_column_name)}'.\nHodnota v stĺpci `target` je '#{element.send(target_column_name)}'.\nČo si želáte spraviť?"
         if update_decision
-          element.send("#{target_column_name}=", element.send(master_column_name) != nil ? element.send(master_column_name) : nil) 
+          element.update_attribute(target_column_name, element.send(master_column_name))
           elements_saved += 1
         else
           next
         end
       else
-        element.send("#{target_column_name}=", element.send(master_column_name))
+        element.update_attribute(target_column_name, element.send(master_column_name))
         elements_saved += 1
       end
-      element.send("#{master_column_name}=", nil)
-      element.save!
+      element.update_attribute(master_column_name, nil)
     end
-    puts "\n\nSpracovanie dat ukoncene.\nPocet prepisanych riadkov: #{elements_saved}.\nPocet preskocenych riadkov: #{elements_processed-elements_saved}."
+    put_stats(elements_saved, elements_processed-elements_saved)
+    
+    rescue
+      puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
       
     #process_standard_input
   end
 
   def quit_or_retry
     choose do |menu|
-      menu.prompt = "Vyberte prosim akciu."
+      menu.prompt = "Vyberte prosím akciu."
 
-      menu.choice('Ukoncit program.') { exit }
-      menu.choices('Zadat posledny vstup znova.')
-    end
-  end
-
-  def update_decision
-    choose do |menu|
-      menu.choice('prepisat') { return true }
-      menu.choices('preskocit') { return false }
-      menu.choices('ukoncit program'){ exit }
+      menu.choice('Ukonňčiť program.') { exit }
+      menu.choices('Zadať posledný vstup znova.')
     end
   end
   
@@ -94,7 +89,6 @@ class App
     puts "#{File.basename(__FILE__)} version #{VERSION}"
   end
 end
-
 
 include Datanest
 

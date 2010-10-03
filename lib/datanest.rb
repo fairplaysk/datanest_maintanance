@@ -1,6 +1,37 @@
+# encoding: UTF-8
+
+class HighLine
+  class Menu
+    def update_responses(  )
+      append_default unless default.nil?
+      @responses = @responses.merge(
+                     :ambiguous_completion =>
+                       "Nejednoznačný výber.  " +
+                       "Prosím vyberte jednu z možností #{options.inspect}.",
+                     :ask_on_error         =>
+                       "?  ",
+                     :invalid_type         =>
+                       "Musíte zadať platnú možnosť #{options}.",
+                     :no_completion        =>
+                       "Musíte vybrat jednu z možností " +
+                       "#{options.inspect}.",
+                     :not_in_range         =>
+                       "Vaša odpoveď sa nenachádza v očakávanom rozmedzí " +
+                       "(#{expected_range}).",
+                     :not_valid            =>
+                       "Vaša odpoveď nie je platná (musí nastať zhoda s " +
+                       "#{@validate.inspect})."
+                   )
+    end
+  end
+end
+
 module Datanest
+  # ak ma vasa databaza stlpec s pk iny ako prednastaveny, zmente prosim hodnotu v nasledovnom riadku
+  PRIMARY_KEY_NAME = '_record_id'
+  
   def define_activerecord_model(name)
-    eval("class #{name.classify} < ActiveRecord::Base; set_table_name('#{name}'); set_primary_key ('_record_id'); end")
+    eval("class #{name.classify} < ActiveRecord::Base; set_table_name('#{name}'); set_primary_key ('#{PRIMARY_KEY_NAME}'); end")
   end
   
   
@@ -34,11 +65,12 @@ module Datanest
   
   def establish_connection(host, database, username, password)
     ActiveRecord::Base.establish_connection(
-      :adapter  => "mysql",
+      :adapter  => "mysql2",
       :host     => host,
       :database => database,
       :username => username,
-      :password => password
+      :password => password,
+      :encoding => "utf8"
     )
     ActiveRecord::Base.connection.transaction
   end
@@ -65,6 +97,14 @@ module Datanest
       exit
     end
     return column_name
+  end
+  
+  def update_decision
+    choose do |menu|
+      menu.choice('prepisat') { return true }
+      menu.choices('preskocit') { return false }
+      menu.choices('ukoncit program'){ exit }
+    end
   end
   
   def get_server
@@ -97,5 +137,14 @@ module Datanest
   
   def ask_for_ico
     ask("Zadajte ico: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Ico musi obsahovat aspon jeden znak. Zadanie opakujte!';}
+  end
+  
+  def put_intro(row_count)
+    puts "Začína sa spracovanie dát. Počet riadkov na spracovanie: #{row_count}."
+    puts "Program bude informovať o počte spracovaných riadkov po spracovaní každých 20-tich riadkov."
+  end
+  
+  def put_stats(overwritten, skipped)
+    puts "\n\nSpracovanie dát ukončené.\nPočet prepísaných riadkov: #{overwritten}.\nPočet preskočených riadkov: #{skipped}."
   end
 end

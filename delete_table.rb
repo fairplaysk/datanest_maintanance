@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby 
+# encoding: UTF-8
 
 # == Aplikacia „Mazanie celého obsahu tabuľky“ 
 # === pripojenie k databaze 
@@ -48,21 +49,21 @@ class App
     master_table_name, master_model = get_and_test_table('master')
     
     rows_affected = 0
-    puts "V zadanej tabulke sa nachadza #{master_model.count} riadkov. Naozaj si zelate vsetky zmazat?"
+    puts "V zadanej tabuľke sa nachádza #{master_model.count} riadkov. Naozaj si želáte všetky zmazať?"
     if confirm_delete
-      puts "Zmazanim obsahu tabulky dojde aj k strate priradenych komentarov a inych udajov, ktore sa viazu na zaznamy v tabulke! Zelate si napriek tomu pokracovat?"
+      puts "Zmazaním obsahu tabuľky dôjde aj k strate priradených komentárov a iných údajov, ktoré sa viažu na záznamy v tabuľke! Želáte si napriek tomu pokračovaľ?"
       if ask_again
         puts "Peter o tom vie?"
         if peter_knows?
-          puts "Zacina sa s mazanim..."
+          puts "Začína sa s mazaním..."
           rows_affected = master_model.delete_all
-          puts "Mazanie sa uspesne ukoncilo. Vymazalo sa #{rows_affected} riadkov."
+          puts "Mazanie sa úspešne ukončilo. Vymazalo sa #{rows_affected} riadkov."
         end
       end
     end
     
     rescue
-      puts 'Pri mazani nastala chyba. Skontrolujte udaje a vyskusajte znova.'
+      puts 'Pri mazaní nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
       
     #process_standard_input
   end

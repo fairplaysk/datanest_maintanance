@@ -1,3 +1,4 @@
+# encoding: UTF-8
 class App
   VERSION = '0.0.1'
   

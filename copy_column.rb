@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby 
+# encoding: UTF-8
 
 # == Aplikacia „Kopírovanie stĺpca do inej tabulky“
 # === pripojenie k databaze 
@@ -59,46 +60,40 @@ class App
     master_table_name, master_model = get_and_test_table('master')
     target_table_name, target_model = get_and_test_table('target')
     if master_model.count != target_model.count
-      puts "Pocty riadkov v `master` a `target` tabulke nie su rovnake.\nMaster: #{master_model.count}.\nTarget: #{target_model.count}.\nSpracovanie dat nemoze pokracovat."
+      puts "Počty riadkov v `master` a `target` tabuľke nie su rovnaké.\nMaster: #{master_model.count}.\nTarget: #{target_model.count}.\nSpracovanie dat nemôže pokračovať."
+      exit
     end
     master_column_name, master_id_column_name = get_and_test_column(master_model, 'master_master'),  get_and_test_column(master_model, 'master_id')
     target_column_name = get_and_test_column(target_model, 'target_target')
     
     elements_saved, elements_processed = 0, 0
     
-    puts "Zacina sa spracovanie dat. Pocet riadkov na spracovanie: #{master_model.count}."
-    
+    put_intro(master_model.count)
     master_model.all.each do |master_element|
       elements_processed += 1
-      puts "Spracovavam zaznam cislo #{elements_processed}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if elements_processed % 20 == 0 || elements_processed == 1
+      puts "Spracovávam záznam číslo #{elements_processed}." if elements_processed % 20 == 0 || elements_processed == 1
       target_element = target_model.find(master_element.send(master_id_column_name))
       if target_element.send(target_column_name) != nil
-        puts "Spracovavam riadok #{elements_processed}.\nV stlpci `master_master` je hodnota: #{master_element.send(master_column_name)}.\nHodnota v stlpci `target_target` je #{target_element.send(target_column_name)}.\nCo si zelate spravit?"
+        puts "Spracovávam riadok #{elements_processed}.\nV stĺpci `master_master` je hodnota: '#{master_element.send(master_column_name) == nil ? "null" : master_element.send(master_column_name)}'.\nHodnota v stĺpci `target_target` je '#{target_element.send(target_column_name)}'.\nČo si želáte spraviť?"
         if update_decision
-          target_element.send("#{target_column_name}=", master_element.send(master_column_name)) 
+          target_element.update_attribute(target_column_name, master_element.send(master_column_name))
           elements_saved += 1
         else
           next
         end
       else
-        target_element.send("#{target_column_name}=", master_element.send(master_column_name))
+        target_element.update_attribute(target_column_name, master_element.send(master_column_name))
         elements_saved += 1
       end
-      target_element.save!
     end
-    puts "\n\nSpracovanie dat ukoncene.\nPocet prepisanych riadkov: #{elements_saved}.\nPocet preskocenych riadkov: #{elements_processed-elements_saved}."
+    put_stats(elements_saved, elements_processed-elements_saved)
+    
+    rescue
+      puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
     
     #process_standard_input
   end
 
-  def update_decision
-    choose do |menu|
-      menu.choice('prepisat') { return true }
-      menu.choices('preskocit') { return false }
-      menu.choices('ukoncit program'){ exit }
-    end
-  end
-  
   def output_version
     puts "#{File.basename(__FILE__)} version #{VERSION}"
   end

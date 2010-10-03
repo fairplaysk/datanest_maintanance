@@ -106,6 +106,8 @@ Problem robia mesta Kosice a Bratislava – v geolokacnej tabulke je clenenie na
 SW by nemal byt citlivy na diakritiku. 
 SW by pocas pracovania mal nieco jednoduche vypisovat – nieco, co sa meni, nech je zrejme, ze program bezi a pracuje.
 
+= Nastavenie id tabuliek
+Na správne fungovanie programu je nutné aby bol nastavený názov primárneho kľúča v tabuľkách. V prípade, že je iný ako '_record_id' je nutné upraviť hodnotu premennej PRIMARY_KEY_NAME v súbore lib/datanest.rb
 
 = Author
 Michal Olah

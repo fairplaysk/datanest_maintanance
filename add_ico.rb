@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/env ruby
+# encoding: UTF-8 
 
 # == Aplikacia „Doplnenie ICO“ 
 # === pripojenie k databaze 
@@ -63,7 +64,11 @@ class App
     target_original_name = get_and_test_column(target_model, 'target_original')
     target_firm_name = get_and_test_column(target_model, 'target_firm')
   
+    elements_saved, elements_processed = 0, 0
+  
+    put_intro(target_model.count)
     target_model.all.each do |target_element|
+      elements_processed += 1
       if target_element.send(target_ICO_name) != nil
         target_element.send("#{target_original_name}=", 'orig')
         target_element.save!
@@ -75,43 +80,43 @@ class App
       if target_model_firm == nil
         next
       else
-        puts "Prave sa spracovava ICO firmy: #{target_model_firm}"
+        puts "Práve sa spracováva ICO firmy: #{target_model_firm}"
         regis_search = regis_model.find_by_name(target_model_firm)
         if regis_search != nil
-          puts "Firma najdena v regis-e"
-          target_element.send("#{target_original_name}=", 'orig'); target_element.send("#{target_ICO_name}=", regis_search.ico);
-          target_element.save!
+          puts "Firma nájdená v regis-e"
+          target_element.update_attributes(target_original_name => 'orig', target_ICO_name => regis_search.ico)
+          elements_saved += 1
         else
-          puts "Presna zdhoda v regis-e sa nepodarila najst. Hladam podobne firmy"
+          puts "Presná zdhoda v regis-e sa nepodarila nájsť. Hľadám podobné firmy"
           regis_like_search = regis_model.where("name like ?", "%#{target_model_firm}%")
           selected_ico = select_ico(regis_like_search)
           next if selected_ico == "skip"
-          target_element.send("#{target_original_name}=", 'manual')
           if selected_ico.respond_to?('ico')
-            target_element.send("#{target_ICO_name}=", selected_ico.ico)
+            target_element.update_attributes(target_original_name => 'manual', target_ICO_name => selected_ico.ico)
           else
-            target_element.send("#{target_ICO_name}=", selected_ico)
+            target_element.update_attributes(target_original_name => 'manual', target_ICO_name => selected_ico)
           end
-          target_element.save!
+          elements_saved += 1
         end
       end
     end
+    put_stats(elements_saved, elements_processed-elements_saved)
      
     rescue
-      puts 'Pri spracovavani udajov nastala chyba. Skontrolujte udaje a vyskusajte znova.'
+      puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
         
     #process_standard_input
   end
   
   def select_ico(regis_like_search)
     choose do |menu|
-      menu.prompt = "Vyberte prosim cislo jednej z firiem, alebo jednu z ostatnych akcii."
+      menu.prompt = "Vyberte prosím číslo jednej z firiem, alebo jednu z ostatných akcii."
       
       regis_like_search.each do |regis_like_result|
-        menu.choice("Vybrat firmu: #{regis_like_result.name}; ICO: #{regis_like_result.ico}\n") { return regis_like_result }
+        menu.choice("Vybrať firmu: #{regis_like_result.name}; ICO: #{regis_like_result.ico}") { return regis_like_result }
       end
-      menu.choices('Zadat ICO manualne') { return ask_for_ico }
-      menu.choices('Preskocit riadok') { return "skip" }
+      menu.choices('Zadať ICO manuálne') { return ask_for_ico }
+      menu.choices('Preskočiť riadok') { return "skip" }
     end
   end
   

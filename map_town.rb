@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby 
+#!/usr/bin/env ruby
+# encoding: UTF-8
 
 # == Aplikacia „Doplnenie mesta“ – mapovanie
 # === pripojenie k databaze 
@@ -62,11 +63,11 @@ class App
     master_mesto_column_name = get_and_test_column(master_model, 'master_mesto')
     master_id_column_name = get_and_test_column(master_model, 'master_id')
 
-    puts "Spracovavanie dat zacalo. Celkovo je v tabulke #{target_model.count} zaznamov."
+    put_intro(target_model.count)
     elements_saved, elements_processed = 0, 0
     target_model.all.each_with_index do |target_element, index|
       elements_processed += 1
-      puts "Spracovavam zaznam cislo #{index+1}. Dalsia informacia o spracovanych zaznamoch bude vypisana po 20 zaznamoch, alebo po ukonceni spracovavania..." if index % 20 == 0
+      puts "Spracovávam záznam číslo #{index+1}. Daľšia informácia o spracovaných záznamoch bude vypísaný po 20 zýznamoch, alebo po ukončení spracovavania..." if index % 20 == 0
       next if target_element.send("#{target_geolokacia_column_name}")
       next unless target_element.send(target_mesto_column_name)
       master_search = master_model.send("find_by_#{master_mesto_column_name}", target_element.send(target_mesto_column_name))
@@ -75,7 +76,10 @@ class App
       target_element.save!
       elements_saved += 1
     end
-    puts "\n\nSpracovanie zaznamov ukoncene.\nSpracovanych zaznamov bolo: #{elements_processed}.\nUpravenych zaznamov bolo: #{elements_saved}."
+    put_stats(elements_saved, elements_processed-elements_saved)
+    
+    rescue
+      puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
 
     #process_standard_input
   end
