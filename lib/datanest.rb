@@ -36,14 +36,14 @@ module Datanest
   
   
   def get_column(name = nil)
-    ask("Zadajte prosim `#{name}` stlpec: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov stlpca musi obsahovat aspon jeden znak. Zadanie opakujte!';}
+    ask("Zadajte prosím `#{name}` stĺpec: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Názov stĺpca musí obsahovať aspoň jeden znak. Zadanie opakujte!';}
   end
   
   def test_column(model, column)
     model.first.send column.to_sym
     yield
     rescue
-      puts 'Zadany stlpec neexistuje, skontrolujte prosim spravnost zadanych udajov a skuste znova.'
+      puts 'Zadaný stĺpec neexistuje, skontrolujte prosím správnost zadaných údajov a skúste znova.'
   end
   
   def init
@@ -54,11 +54,11 @@ module Datanest
         password = get_password
         database = get_database
         establish_connection(host, database, username, password)
-        puts 'Udaje na pripojenie k databaze boli zadane spravne.'
+        puts 'Údaje na pripojenie k databáze boli zadané správne.'
     
         break
       rescue
-        puts 'Pri pripajani na databazu nastala chyba, skontrolujte prosim spravnost udajov a dostupnost databazy a skuste znova.'
+        puts 'Pri pripájaní na databázu nastala chyba, skontrolujte prosím spravnosť údajov a dostupnosť databázy a skúste znova.'
       end
     end
   end
@@ -83,7 +83,7 @@ module Datanest
         model = table.capitalize.classify.constantize
         break if model.columns
       rescue
-        puts 'Zadana tabulka sa v databaze nenachadza.'
+        puts 'Zadaná tabuľka sa v databáze nenachádza.'
         quit_or_retry
       end
     end
@@ -93,7 +93,7 @@ module Datanest
   def get_and_test_column(model, column_id)
     column_name = get_column(column_id)
     unless model.columns_hash.keys.include?(column_name)
-      puts "Zadany stlpec `#{column_name}` sa nenachadza v tabulke `#{model.table_name}`.\nSkontrolujte prosim zadane udaje a skuste znova.\nProgram sa teraz ukonci."
+      puts "Zadaný stĺpec `#{column_name}` sa nenachádza v tabuľke `#{model.table_name}`.\nSkontrolujte prosím zadané údaje a skúste znova.\nProgram sa teraz ukončí."
       exit
     end
     return column_name
@@ -108,35 +108,35 @@ module Datanest
   end
   
   def get_server
-    url = ask('Zadajte prosim adresu MySQL servera: ') { |q| q.default = '127.0.0.1'}
+    url = ask('Zadajte prosím adresu MySQL servera: ') { |q| q.default = '127.0.0.1'}
     URI.parse(url)
     url
     rescue URI::InvalidURIError
-      puts 'Zadana adresa nie je spravna, skontrolujte prosim jej spravnost.'
+      puts 'Zadaná adresa nie je správna, skontrolujte prosím jej správnost.'
   end
   
   def get_username
-    ask('Zadajte prosim MySQL pouzivatelske meno: ') { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Pouzivatelske meno musi obsahovat aspon jeden znak. Zadanie opakujte!'; }
+    ask('Zadajte prosím MySQL používateľské meno: ') { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Pouzivatelske meno musi obsahovat aspon jeden znak. Zadanie opakujte!'; }
   end
   
   def get_password
-    ask('Zadajte prosim MySQL pouzivatelske heslo: ') do |q| 
+    ask('Zadajte prosím MySQL používateľské heslo: ') do |q| 
       q.echo = "x"
       q.validate = /\w+/
-      q.responses[:not_valid] = 'Heslo musi obsahovat aspon jeden znak. Zadanie opakujte!'
+      q.responses[:not_valid] = 'Heslo musí obsahovaľ aspoň jeden znak. Zadanie opakujte!'
     end
   end
   
   def get_database
-    ask('Zadajte prosim MySQL databazu: ') { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov databazy musi obsahovat aspon jeden znak. Zadanie opakujte!'; }
+    ask('Zadajte prosím MySQL databázu: ') { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov databázy musí obsahovaľ aspoň jeden znak. Zadanie opakujte!'; }
   end
   
   def get_table(name = nil)
-    ask("Zadajte prosim MySQL #{name} tabulku: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Nazov tabulky musi obsahovat aspon jeden znak. Zadanie opakujte!';}
+    ask("Zadajte prosím MySQL #{name} tabuľku: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Názov tabuľky musí obsahovaľ aspoň jeden znak. Zadanie opakujte!';}
   end
   
   def ask_for_ico
-    ask("Zadajte ico: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Ico musi obsahovat aspon jeden znak. Zadanie opakujte!';}
+    ask("Zadajte ico: ") { |q| q.validate = /\w+/; q.responses[:not_valid] = 'Ico musí obsahovaľ aspoň jeden znak. Zadanie opakujte!';}
   end
   
   def put_intro(row_count)
