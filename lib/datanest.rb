@@ -30,6 +30,9 @@ module Datanest
   # ak ma vasa databaza stlpec s pk iny ako prednastaveny, zmente prosim hodnotu v nasledovnom riadku
   PRIMARY_KEY_NAME = '_record_id'
   
+  # fix for encoding issue with windows
+  system("chcp 65001") if RUBY_PLATFORM.split("-")[1] =~ /mingw|mswin/
+  
   def define_activerecord_model(name)
     eval("class #{name.classify} < ActiveRecord::Base; set_table_name('#{name}'); set_primary_key ('#{PRIMARY_KEY_NAME}'); end")
   end
