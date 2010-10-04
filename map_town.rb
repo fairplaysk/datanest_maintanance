@@ -67,7 +67,7 @@ class App
     elements_saved, elements_processed = 0, 0
     target_model.all.each_with_index do |target_element, index|
       elements_processed += 1
-      puts "Spracovávam záznam číslo #{index+1}. Daľšia informácia o spracovaných záznamoch bude vypísaný po 20 zýznamoch, alebo po ukončení spracovavania..." if index % 20 == 0
+      puts "Spracovávam záznam číslo #{elements_processed}." if index % 20 == 0
       next if target_element.send("#{target_geolokacia_column_name}")
       next unless target_element.send(target_mesto_column_name)
       master_search = master_model.send("find_by_#{master_mesto_column_name}", target_element.send(target_mesto_column_name))
