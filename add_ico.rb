@@ -70,8 +70,7 @@ class App
     target_model.all.each do |target_element|
       elements_processed += 1
       if target_element.send(target_ICO_name) != nil
-        target_element.send("#{target_original_name}=", 'orig')
-        target_element.save!
+        target_element.update_attribute(target_original_name, 'orig')
         next
       end
       
@@ -87,7 +86,9 @@ class App
           target_element.update_attributes(target_original_name => 'orig', target_ICO_name => regis_search.ico)
           elements_saved += 1
         else
-          puts "Presná zdhoda v regis-e sa nepodarila nájsť. Hľadám podobné firmy"
+          $config['company_shortcuts'].split(';').each { |shortcut| target_model_firm.gsub!(shortcut, '') }
+          target_model_firm = target_model_firm.gsub(/,+|;+|-+/, ' ').gsub(/\s+/, ' ')
+          puts "Presná zdhoda v regis-e sa nepodarila nájsť. Hľadám podobné firmy pre #{target_model_firm}"
           regis_like_search = regis_model.where("name like ?", "%#{target_model_firm}%")
           selected_ico = select_ico(regis_like_search)
           next if selected_ico == "skip"
@@ -102,8 +103,8 @@ class App
     end
     put_stats(elements_saved, elements_processed-elements_saved)
      
-    rescue
-      puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
+    # rescue
+    #   puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
         
     #process_standard_input
   end

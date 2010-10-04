@@ -107,7 +107,7 @@ SW by nemal byt citlivy na diakritiku.
 SW by pocas pracovania mal nieco jednoduche vypisovat – nieco, co sa meni, nech je zrejme, ze program bezi a pracuje.
 
 = Nastavenie id tabuliek
-Na správne fungovanie programu je nutné aby bol nastavený názov primárneho kľúča v tabuľkách. V prípade, že je iný ako '_record_id' je nutné upraviť hodnotu premennej PRIMARY_KEY_NAME v súbore lib/datanest.rb
+Na správne fungovanie programu je nutné aby bol nastavený názov primárneho kľúča v tabuľkách. V prípade, že je iný ako '_record_id' je nutné upraviť hodnotu premennej primary_key_name v súbore lib/config.yml
 
 = Author
 Michal Olah

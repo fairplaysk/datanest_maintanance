@@ -27,8 +27,8 @@ class HighLine
 end
 
 module Datanest
-  # ak ma vasa databaza stlpec s pk iny ako prednastaveny, zmente prosim hodnotu v nasledovnom riadku
-  PRIMARY_KEY_NAME = '_record_id'
+  $config = YAML::load( File.open(File.join(File.dirname(__FILE__), 'config.yml')) )
+  PRIMARY_KEY_NAME = $config['primary_key_name']
   
   # fix for encoding issue with windows
   system("chcp 65001") if RUBY_PLATFORM.split("-")[1] =~ /mingw|mswin/
@@ -83,7 +83,7 @@ module Datanest
       begin
         table = get_table(name)
         define_activerecord_model(table)
-        model = table.capitalize.classify.constantize
+        model = table.classify.constantize
         break if model.columns
       rescue
         puts 'Zadaná tabuľka sa v databáze nenachádza.'
