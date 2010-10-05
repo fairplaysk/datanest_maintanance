@@ -113,11 +113,12 @@ class App
     choose do |menu|
       menu.prompt = "Vyberte prosím číslo jednej z firiem, alebo jednu z ostatných akcii."
       
+      menu.choices('Zadať ICO manuálne') { return ask_for_ico }
+      menu.choices('Preskočiť riadok') { return "skip" }
+      
       regis_like_search.each do |regis_like_result|
         menu.choice("Vybrať firmu: #{regis_like_result.name}; ICO: #{regis_like_result.ico}") { return regis_like_result }
       end
-      menu.choices('Zadať ICO manuálne') { return ask_for_ico }
-      menu.choices('Preskočiť riadok') { return "skip" }
     end
   end
   
