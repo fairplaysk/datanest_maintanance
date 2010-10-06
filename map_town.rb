@@ -65,7 +65,7 @@ class App
 
     put_intro(target_model.count)
     elements_saved, elements_processed = 0, 0
-    target_model.all.each_with_index do |target_element, index|
+    target_model.all[@options.start_index-1..-1].each_with_index do |target_element, index|
       elements_processed += 1
       puts "Spracovávam záznam číslo #{elements_processed}." if index % 20 == 0
       next if target_element.send("#{target_geolokacia_column_name}")

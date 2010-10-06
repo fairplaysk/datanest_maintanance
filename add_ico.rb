@@ -67,7 +67,7 @@ class App
     elements_saved, elements_processed = 0, 0
   
     put_intro(target_model.count)
-    target_model.all.each do |target_element|
+    target_model.all[@options.start_index-1..-1].each do |target_element|
       elements_processed += 1
       if target_element.send(target_ICO_name) != nil
         target_element.update_attribute(target_original_name, 'orig')

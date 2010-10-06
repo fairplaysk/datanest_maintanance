@@ -69,7 +69,7 @@ class App
     elements_saved, elements_processed = 0, 0
     
     put_intro(master_model.count)
-    master_model.all.each do |master_element|
+    master_model.all[@options.start_index-1..-1].each do |master_element|
       elements_processed += 1
       puts "Spracovávam záznam číslo #{elements_processed}." if elements_processed % 20 == 0 || elements_processed == 1
       target_element = target_model.find(master_element.send(master_id_column_name))
