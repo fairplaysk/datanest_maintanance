@@ -12,6 +12,7 @@ class App
     @options = OpenStruct.new
     @options.verbose = false
     @options.quiet = false
+    @options.start_index = 1
   end
 
   # Parse options, check arguments, then process the command
@@ -44,6 +45,7 @@ class App
       opts.on('-h', '--help')       { output_help }
       opts.on('-V', '--verbose')    { @options.verbose = true }  
       opts.on('-q', '--quiet')      { @options.quiet = true }
+      opts.on('--start-index N') { |index| @options.start_index = index.to_i; }
       # TO DO - add additional options
             
       opts.parse!(@arguments) rescue return false

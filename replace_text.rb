@@ -41,9 +41,9 @@ class App
     elements_saved, elements_processed = 0, 0
     
     put_intro(master_model.count)
-    master_model.all.each do |element|
+    master_model.all[@options.start_index-1..-1].each do |element|
       elements_processed += 1
-      puts "Spracovávam záznam číslo #{elements_processed}." if elements_processed % 20 == 0 || elements_processed == 1
+      puts "Spracovávam záznam číslo #{elements_processed+@options.start_index-1}." if elements_processed % 20 == 0 || elements_processed == 1
       if element.send(master_column_name) != nil
         replacement_text = element.send(master_column_name).gsub(replace_pattern, replace_with)
         unless replacement_text == element.send(master_column_name)
@@ -54,8 +54,8 @@ class App
     end
     put_stats(elements_saved, elements_processed-elements_saved)
     
-    rescue
-      puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
+    # rescue
+    #   puts 'Pri spracovavaní údajov nastala chyba. Skontrolujte údaje a vyskúšajte znova.'
       
     #process_standard_input
   end
