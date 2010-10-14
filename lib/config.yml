@@ -1,2 +1,2 @@
-primary_key_name: "_record_id"
-company_shortcuts: "a.s.;spol. s.r.o.;s.r.o."
+primary_key_name: "id"
+company_shortcuts: "a.s.;spol. s.r.o.;s.r.o.;s. r. o.;spol. s r. o."
