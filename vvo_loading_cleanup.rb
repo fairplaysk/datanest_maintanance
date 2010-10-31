@@ -36,17 +36,19 @@ class App
     regis_table_name, regis_model = get_and_test_table('regis')
     
     customer_column_ico = 'customer_ico'#get_and_test_column(target_model, 'customer_ico')
-    customer_column_name = 'procurement_subject'
+    customer_column_name = 'customer_company_name'
     supplier_column_ico = 'supplier_ico'#get_and_test_column(target_model, 'supplier_ico')
-    supplier_column_name = 'supplier_name'
+    supplier_column_name = 'supplier_company_name'
     
     
     elements_saved, elements_processed = 0, 0
     
-    elements = target_model.select("#{target_table_name}.#{$config['primary_key_name']}, #{target_table_name}.#{customer_column_ico}, #{target_table_name}.#{supplier_column_ico}, 
-                                    #{target_table_name}.#{customer_column_name}, #{target_table_name}.#{supplier_column_name}, rcust.ico AS cico, rsupp.ico AS sico").
-                                    joins("LEFT JOIN #{regis_table_name} rcust on rcust.ico = #{target_table_name}.#{customer_column_ico}
-                                    LEFT JOIN #{regis_table_name} rsupp on rsupp.ico = #{target_table_name}.#{supplier_column_ico}").where(:etl_loaded_date => nil).readonly(false)
+    # elements = target_model.select("#{target_table_name}.#{$config['primary_key_name']}, #{target_table_name}.#{customer_column_ico}, #{target_table_name}.#{supplier_column_ico}, 
+    #                                 #{target_table_name}.#{customer_column_name}, #{target_table_name}.#{supplier_column_name}, rcust.ico AS cico, rsupp.ico AS sico").
+    #                                 joins("LEFT JOIN #{regis_table_name} rcust on rcust.ico = #{target_table_name}.#{customer_column_ico}
+    #                                 LEFT JOIN #{regis_table_name} rsupp on rsupp.ico = #{target_table_name}.#{supplier_column_ico}").where(:etl_loaded_date => nil).readonly(false)
+    
+    elements = target_model.where("quality_status != 'ok' OR quality_status IS null")
     
     put_intro(elements.size)
     elements[@options.start_index-1..-1].each do |element|
@@ -54,12 +56,13 @@ class App
       already_saved = false
       puts "Spracovávam záznam číslo #{elements_processed+@options.start_index-1}." if elements_processed % 20 == 0 || elements_processed == 1
       
-      if element.cico.nil?
+      if element.send(customer_column_ico) == 0 || !regis_model.find_by_ico(element.send(customer_column_ico))
         target_model_firm = element.send(customer_column_name)
         puts "Objednavatatela #{target_model_firm} sa nepodarilo najst v databaze regis."
-        $config['company_shortcuts'].split(';').each { |shortcut| target_model_firm.gsub!(shortcut, '') }
-        target_model_firm = target_model_firm.gsub(/,+|;+|-+/, ' ').gsub(/\s+/, ' ').gsub(/\s+$/, '')
-        regis_like_search = regis_model.where("name like ?", "%#{target_model_firm}%")
+        $config['company_shortcuts'].split(';').each { |shortcut| target_model_firm.gsub!(shortcut, '') } if target_model_firm
+        target_model_firm = target_model_firm.gsub(/,+|;+|-+/, ' ').gsub(/\s+/, ' ').gsub(/\s+$/, '') if target_model_firm
+        puts "Hladam podobne firmy pre #{target_model_firm}. ICO: #{element.send(customer_column_ico)}"
+        regis_like_search = target_model_firm ? regis_model.where("name like ?", "%#{target_model_firm}%") : []
         selected_ico = select_ico(regis_like_search)
         if selected_ico != "skip"
           if selected_ico.respond_to?('ico')
@@ -72,13 +75,13 @@ class App
         end
       end
       
-      if element.sico.nil?
+      if element.send(supplier_column_ico) == 0 || !regis_model.find_by_ico(element.send(supplier_column_ico))
         target_model_firm = element.send(supplier_column_name)
         puts "Dodavatela #{target_model_firm} sa nepodarilo najst v databaze regis."
-        $config['company_shortcuts'].split(';').each { |shortcut| target_model_firm.gsub!(shortcut, '') }
-        target_model_firm = target_model_firm.gsub(/,+|;+|-+/, ' ').gsub(/\s+/, ' ').gsub(/\s+$/, '')
-        puts "Hladam podobne firmy pre #{target_model_firm}"
-        regis_like_search = regis_model.where("name like ?", "%#{target_model_firm}%")
+        $config['company_shortcuts'].split(';').each { |shortcut| target_model_firm.gsub!(shortcut, '') } if target_model_firm
+        target_model_firm = target_model_firm.gsub(/,+|;+|-+/, ' ').gsub(/\s+/, ' ').gsub(/\s+$/, '') if target_model_firm
+        puts "Hladam podobne firmy pre #{target_model_firm}. ICO: #{element.send(supplier_column_ico)}"
+        regis_like_search = target_model_firm ? regis_model.where("name like ?", "%#{target_model_firm}%") : []
         selected_ico = select_ico(regis_like_search)
         if selected_ico != "skip"
           if selected_ico.respond_to?('ico')
@@ -89,6 +92,16 @@ class App
             elements_saved += 1 unless already_saved
           end
         end
+      end
+      
+      customer_regis, supplier_regis = regis_model.find_by_ico(element.send(customer_column_ico)), regis_model.find_by_ico(element.send(supplier_column_ico))
+      if customer_regis && supplier_regis
+        puts "Zaznam bol uspesne aktualizovany" if element.update_attributes(:customer_company_name => customer_regis.name, :supplier_company_name => supplier_regis.name, 
+          :customer_company_address => customer_regis.address.split(',')[0], :supplier_company_address => supplier_regis.address.split(',')[0], 
+          :supplier_company_town => supplier_regis.address.split(',')[1], :customer_company_town => customer_regis.address.split(',')[1],
+          :quality_status => 'ok')
+      else
+        puts "Zaznam nebol upraveny, skontrolujte prosim ICO pri objednavatelovi aj dodavatelovi a skuste program spustit znova po ukonceni tohto behu. Program pokracuje dalsim zaznamom..."
       end
     end
     put_stats(elements_saved, elements_processed-elements_saved)
